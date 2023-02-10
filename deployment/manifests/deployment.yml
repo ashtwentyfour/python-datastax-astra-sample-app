@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: python-cassandra
+  namespace: gcp-python-cassandra
+  labels:
+    app: python-cassandra
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: python-cassandra
+  template:
+    metadata:
+      labels:
+        app: python-cassandra
+    spec:
+      volumes:
+        - name: datastax-secret-vol
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: "datastax-credentials"
+        - name: secret-bundles
+          emptyDir: {}
+      initContainers:
+        - name: copy-secret-bundle
+          image: busybox
+          command: ['sh', '-c', 'cp /secure-connect/* /bundles/']
+          volumeMounts:
+            - name: datastax-secret-vol
+              mountPath: /secure-connect
+            - name: secret-bundles
+              mountPath: /bundles
+      containers:
+      - image: ashbourne1990/python-datastax-sample-app:latest
+        name: python-cassandra-container
+        env:
+        - name: KEYSPACE
+          value: "health_tracker_data_keyspace_1"
+      volumeMounts:
+      - mountPath: "/bundles"
+        name: secret-bundles
+      resources:
+        requests:
+          cpu: "125m"
+          memory: "64Mi"
+      serviceAccountName: python-cassandra-sa
