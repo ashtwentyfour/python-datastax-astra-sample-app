@@ -109,4 +109,35 @@ Press CTRL+C to quit
 
 ```
 $ kubectl apply -f service.yml
+$ kubectl get svc -n gcp-python-cassandra
 ```
+
+### Testing
+
+* Add physical activity test data for a user with ID = 'd6e8a4a2-a8a7-11ed-afa1-0242ac120002' by running:
+
+```
+$ curl -X PUT $SERVICE_IP:8080/add/activity -H "Content-Type: application/json" -d '{"id": "d6e8a4a2-a8a7-11ed-afa1-0242ac120002", "date": "2022-10-01", "totalsteps": 12100, "calories": 1801, "totaldistance": 8.5, "sedentaryminutes": 650, "veryactiveminutes": 27, "fairlyactiveminutes": 20, "lightlyactiveminutes": 200}'
+```
+
+* Add sleep data:
+
+```
+$ curl -X PUT $SERVICE_IP:8080/add/sleep -H "Content-Type: application/json" -d '{"id": "d6e8a4a2-a8a7-11ed-afa1-0242ac120002", "date": "2022-10-01", "sleeptime": "2022-10-01 01:30:00", "sleepminutes": 400, "bedminutes": 430, "sleeprecords": 1}'
+```
+
+* Add weight and BMI data:
+
+```
+$ curl -X PUT $SERVICE_IP:8080/add/weight -H "Content-Type: application/json" -d '{"id": "d6e8a4a2-a8a7-11ed-afa1-0242ac120002", "date": "2022-10-01", "weightkgs": 52.445630003952, "fat": 22, "BMI": 22.54778900021}'
+```
+
+* Retrieve activity data for user 'd6e8a4a2-a8a7-11ed-afa1-0242ac120002':
+
+```
+$ curl $SERVICE_IP:8080/d6e8a4a2-a8a7-11ed-afa1-0242ac120002/activity
+
+{"days":[{"calories":1801,"date":"2022-10-01","fairlyactiveminutes":20,"lightlyactiveminutes":200,"sedentaryminutes":650,"totaldistance":8.5,"totalsteps":12100,"veryactiveminutes":27}],"id":"d6e8a4a2-a8a7-11ed-afa1-0242ac120002"}
+```
+
+* Endpoints ```/{user_id}/sleep``` and ```/{user_id}/weightloss``` can be called to fetch sleep and weight data respectively
