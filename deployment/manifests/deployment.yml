@@ -39,11 +39,17 @@ spec:
         env:
         - name: KEYSPACE
           value: "health_tracker_data_keyspace_1"
-      volumeMounts:
-      - mountPath: "/bundles"
-        name: secret-bundles
-      resources:
-        requests:
-          cpu: "125m"
-          memory: "64Mi"
+        livenessProbe:
+          httpGet:
+            path: /health/ready
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        volumeMounts:
+        - mountPath: "/bundles"
+          name: secret-bundles
+        resources:
+          requests:
+            cpu: "125m"
+            memory: "64Mi"
       serviceAccountName: python-cassandra-sa
